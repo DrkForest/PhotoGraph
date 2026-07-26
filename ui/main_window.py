@@ -85,6 +85,34 @@ class MainWindow(QMainWindow):
 
             try:
                 result = process_folder(folder)
+
+                embeddings = result["embeddings"]
+
+                print()
+
+                print("Embeddings:", len(embeddings))
+
+                first_image = next(iter(embeddings))
+
+                print(first_image)
+
+                print(embeddings[first_image].shape)
+
+                similar = result["similar"]
+
+                print()
+
+                first = next(iter(similar))
+
+                print(first.name)
+
+                for image, score in similar[first]:
+
+                    print(
+                        image.name,
+                        round(score, 3)
+                    )
+
             finally:
                 loading.close()
 
