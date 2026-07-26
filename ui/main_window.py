@@ -35,59 +35,39 @@ class MainWindow(QMainWindow):
         self.graph = GraphView()
         self.preview = PreviewWidget()
 
-        self.info = QLabel(
-            "Folder not selected"
-        )
+        print(type(self.preview))
+        print(hasattr(self.preview, "show_image"))
+        print(dir(self.preview))
 
-        self.info.setMinimumHeight(
-            180
-        )
+        self.graph.photo_selected.connect(self.preview.show_image)
 
-        self.info.setMinimumWidth(
-            400
-        )
+        self.info = QLabel("Folder not selected")
 
-        self.info.setAlignment(
-            Qt.AlignCenter
-        )
+        self.info.setMinimumHeight(180)
+        self.info.setMinimumWidth(400)
+        self.info.setAlignment(Qt.AlignCenter)
 
-        self.toolbar.select_button.clicked.connect(
-            self.select_folder
-        )
+        self.toolbar.select_button.clicked.connect(self.select_folder)
 
         bottom = QHBoxLayout()
 
-        bottom.addWidget(
-            self.info
-        )
-
-        bottom.addWidget(
-            self.preview
-        )
+        bottom.addWidget(self.info)
+        bottom.addWidget(self.preview)
 
         layout = QVBoxLayout()
 
-        layout.addWidget(
-            self.toolbar
-        )
-
+        layout.addWidget(self.toolbar)
         layout.addWidget(
             self.graph,
             stretch=1
         )
-
-        layout.addLayout(
-            bottom
-        )
+        layout.addLayout(bottom)
 
         container = QWidget()
-        container.setLayout(
-            layout
-        )
 
-        self.setCentralWidget(
-            container
-        )
+        container.setLayout(layout)
+
+        self.setCentralWidget(container)
 
         # STORAGE
         init_storage()
