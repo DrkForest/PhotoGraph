@@ -35,10 +35,6 @@ class MainWindow(QMainWindow):
         self.graph = GraphView()
         self.preview = PreviewWidget()
 
-        print(type(self.preview))
-        print(hasattr(self.preview, "show_image"))
-        print(dir(self.preview))
-
         self.graph.photo_selected.connect(self.preview.show_image)
 
         self.info = QLabel("Folder not selected")
