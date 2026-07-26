@@ -1,4 +1,5 @@
 from pathlib import Path
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QGraphicsScene,
@@ -9,9 +10,6 @@ from ui.graphics.photo_node import PhotoNode
 
 
 class GraphView(QGraphicsView):
-
-    THUMB_SPACING = 170
-    COLUMNS = 6
 
     photo_selected = Signal(Path)
 
@@ -25,52 +23,68 @@ class GraphView(QGraphicsView):
 
         self.selected_node = None
 
-        self.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.setAlignment(
+            Qt.AlignLeft | Qt.AlignTop
+        )
 
-        self.setDragMode(QGraphicsView.NoDrag)
+        self.setDragMode(
+            QGraphicsView.NoDrag
+        )
 
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setTransformationAnchor(
+            QGraphicsView.AnchorUnderMouse
+        )
 
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setResizeAnchor(
+            QGraphicsView.AnchorUnderMouse
+        )
 
-        self.scene.addText("PhotoGraph Graph Area")
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarAlwaysOff
+        )
+
+        self.setVerticalScrollBarPolicy(
+            Qt.ScrollBarAlwaysOff
+        )
+
+        self.scene.addText(
+            "PhotoGraph Graph Area"
+        )
 
     def clear(self):
 
         self.scene.clear()
 
-    def show_images(self, images, thumbnails):
+    def show_graph(
+        self,
+        photos,
+        positions,
+    ):
 
         self.scene.clear()
 
         self.selected_node = None
 
-        for i, thumb in enumerate(thumbnails):
+        SCALE = 1000
+
+        for photo in photos:
 
             node = PhotoNode(
-                images[i],
-                thumbnails[i]
+                photo
             )
 
             node.clicked.connect(
                 self.on_photo_clicked
             )
 
-            x = (i % self.COLUMNS) * self.THUMB_SPACING
-            y = (i // self.COLUMNS) * self.THUMB_SPACING
+            x, y = positions[photo.image]
 
-            node.setPos(x, y)
+            node.setPos(
+                x * SCALE,
+                y * SCALE
+            )
 
             self.scene.addItem(node)
-
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
-
-        self.fitInView(
-            self.scene.itemsBoundingRect(),
-            Qt.KeepAspectRatio
-        )
 
     def on_photo_clicked(self, node):
 
@@ -78,6 +92,7 @@ class GraphView(QGraphicsView):
             self.selected_node.set_selected(False)
 
         self.selected_node = node
+
         self.selected_node.set_selected(True)
 
         self.photo_selected.emit(
@@ -94,4 +109,7 @@ class GraphView(QGraphicsView):
         else:
             factor = zoom_out
 
-        self.scale(factor, factor)
+        self.scale(
+            factor,
+            factor
+        )

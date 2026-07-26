@@ -17,14 +17,16 @@ class PhotoNode(QGraphicsObject):
 
     SIZE = 150
 
-    def __init__(self, image_path, thumbnail_path):
+    def __init__(self, photo):
 
         super().__init__()
 
-        self.image_path = image_path
-        self.thumbnail_path = thumbnail_path
+        self.photo = photo
 
-        self.pixmap = QPixmap(str(thumbnail_path))
+        self.image_path = photo.image
+        self.thumbnail_path = photo.thumbnail
+
+        self.pixmap = QPixmap(str(photo.thumbnail))
 
         self.pixmap = self.pixmap.scaled(
             self.SIZE,

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from core.clip.cache import (
     has_embedding,
     load_embedding,
@@ -8,38 +6,42 @@ from core.clip.cache import (
 
 from core.clip.embeddings import generate_embedding
 
+from core.models.photo import Photo
+
 
 def generate_embeddings(
-    thumbnails: list[Path]
-) -> dict[Path, object]:
+    photos: list[Photo]
+) -> list[Photo]:
 
-    embeddings = {}
+    total = len(photos)
 
-    total = len(thumbnails)
-
-    for i, thumb in enumerate(thumbnails, start=1):
+    for i, photo in enumerate(photos, start=1):
 
         print(
-            f"[{i}/{total}] {thumb.name}"
+            f"[{i}/{total}] {photo.image.name}"
         )
 
-        if has_embedding(thumb):
+        if has_embedding(photo.thumbnail):
 
-            embeddings[thumb] = load_embedding(
-                thumb
+            photo.embedding = load_embedding(
+                photo.thumbnail
             )
 
             continue
 
+
         embedding = generate_embedding(
-            thumb
+            photo.thumbnail
         )
 
+
         save_embedding(
-            thumb,
+            photo.thumbnail,
             embedding
         )
 
-        embeddings[thumb] = embedding
 
-    return embeddings
+        photo.embedding = embedding
+
+
+    return photos

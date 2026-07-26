@@ -1,36 +1,50 @@
+TOP_K = 5
+MIN_SIMILARITY = 0.55
+
+
 def search_similar(
     index,
     vectors,
-    image_list,
-    k=6
+    photos,
 ):
 
     distances, indices = index.search(
         vectors,
-        k
+        TOP_K + 1
     )
 
     result = {}
 
-    for i, image in enumerate(image_list):
+
+    for i, photo in enumerate(photos):
 
         neighbours = []
+
 
         for idx, score in zip(
             indices[i],
             distances[i]
         ):
 
+            # пропускаємо саме себе
             if idx == i:
                 continue
 
+
+            # слабка схожість
+            if score < MIN_SIMILARITY:
+                continue
+
+
             neighbours.append(
                 (
-                    image_list[idx],
+                    photos[idx],
                     float(score)
                 )
             )
 
-        result[image] = neighbours
+
+        result[photo.image] = neighbours
+
 
     return result

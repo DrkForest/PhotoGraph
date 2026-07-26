@@ -3,38 +3,76 @@ from core.image.thumbnail import create_thumbnail
 from core.clip.batch import generate_embeddings
 from core.faiss.index import build_index
 from core.faiss.search import search_similar
+from core.graph.builder import build_graph
+from core.graph.layout import build_layout
+
+from core.models.photo import Photo
 
 import numpy as np
 
 
 def process_folder(folder):
 
+    # IMAGE SCAN
     images = scan_folder(
         folder
     )
 
-    thumbnails = []
+    photos = [
+        Photo(
+            image=image
+        )
+        for image in images
+    ]
 
-    for image in images:
 
-        thumbnail = create_thumbnail(image)
-        thumbnails.append(thumbnail)
+    # THUMBNAILS
+    for photo in photos:
 
-    embeddings = generate_embeddings(thumbnails)
+        photo.thumbnail = create_thumbnail(
+            photo.image
+        )
 
-    index, image_list = build_index(embeddings)
 
-    vectors = np.stack(list(embeddings.values())).astype("float32")
+    # CLIP
+    photos = generate_embeddings(
+        photos
+    )
+
+
+    # FAISS
+    index, photo_list = build_index(
+        photos
+    )
+
+    vectors = np.stack(
+        [
+            photo.embedding
+            for photo in photos
+        ]
+    ).astype("float32")
+
 
     similar = search_similar(
         index,
         vectors,
-        image_list
+        photo_list
     )
 
+
+    # GRAPH
+    graph = build_graph(
+        similar
+    )
+
+    positions = build_layout(
+        graph
+    )
+
+
     return {
-        "images": images,
-        "thumbnails": thumbnails,
-        "embeddings": embeddings,
+        "photos": photos,
         "similar": similar,
+        "graph": graph,
+        "positions": positions,
     }

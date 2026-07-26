@@ -86,17 +86,20 @@ class MainWindow(QMainWindow):
             try:
                 result = process_folder(folder)
 
-                embeddings = result["embeddings"]
+                photos = result["photos"]
 
                 print()
+                print("Photos:", len(photos))
 
-                print("Embeddings:", len(embeddings))
+                first_photo = photos[0]
 
-                first_image = next(iter(embeddings))
+                print(
+                    first_photo.image
+                )
 
-                print(first_image)
-
-                print(embeddings[first_image].shape)
+                print(
+                    first_photo.embedding.shape
+                )
 
                 similar = result["similar"]
 
@@ -106,27 +109,25 @@ class MainWindow(QMainWindow):
 
                 print(first.name)
 
-                for image, score in similar[first]:
+                for photo, score in similar[first]:
 
                     print(
-                        image.name,
+                        photo.image.name,
                         round(score, 3)
                     )
+
 
             finally:
                 loading.close()
 
-            images = result["images"]
 
-            thumbnails = result["thumbnails"]
-
-            self.graph.show_images(
-                images,
-                thumbnails
+            self.graph.show_graph(
+                photos,
+                result["positions"]
             )
+
 
             self.info.setText(
                 f"Folder:\n{folder}\n\n"
-                f"Images: {len(images)}\n"
-                f"Thumbnails: {len(thumbnails)}"
+                f"Images: {len(photos)}"
             )
