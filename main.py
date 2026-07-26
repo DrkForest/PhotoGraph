@@ -1,5 +1,5 @@
-def main():
-    print("PhotoGraph MVP")
+from app.application import run
+
 
 if __name__ == "__main__":
-    main()
+    run()
