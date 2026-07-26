@@ -14,3 +14,7 @@ dist/
 *.DS_Store
 
 .cache/
+
+# PhotoGraph generated data
+data/
+testdata/
