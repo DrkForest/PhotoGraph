@@ -5,17 +5,16 @@ from PySide6.QtGui import (
     QPen,
     QPixmap,
 )
-
-from PySide6.QtWidgets import (
-    QGraphicsObject,
-)
+from PySide6.QtWidgets import QGraphicsObject
 
 
 class PhotoNode(QGraphicsObject):
 
     clicked = Signal(object)
 
-    SIZE = 150
+    NORMAL_SIZE = 150
+    MIN_SIZE = 150
+    MAX_SIZE = 150
 
     def __init__(self, photo):
 
@@ -26,16 +25,14 @@ class PhotoNode(QGraphicsObject):
         self.image_path = photo.image
         self.thumbnail_path = photo.thumbnail
 
-        self.pixmap = QPixmap(str(photo.thumbnail))
+        self.selected = False
+        self.neighbor_highlighted = False
 
-        self.pixmap = self.pixmap.scaled(
-            self.SIZE,
-            self.SIZE,
-            Qt.KeepAspectRatio,
-            Qt.SmoothTransformation
+        self.pixmap = QPixmap(
+            str(self.thumbnail_path)
         )
 
-        self.selected = False
+        self._update_pixmap()
 
         self.setAcceptHoverEvents(True)
 
@@ -44,9 +41,35 @@ class PhotoNode(QGraphicsObject):
         return QRectF(
             0,
             0,
-            self.SIZE,
-            self.SIZE
+            self.NORMAL_SIZE,
+            self.NORMAL_SIZE
         )
+
+    def _update_pixmap(self):
+
+        self.pixmap = self.pixmap.scaled(
+            self.NORMAL_SIZE,
+            self.NORMAL_SIZE,
+            Qt.KeepAspectRatio,
+            Qt.SmoothTransformation
+        )
+
+        self.photo_rect = QRectF(
+            0,
+            0,
+            self.pixmap.width(),
+            self.pixmap.height()
+        )
+
+        self.photo_rect.moveCenter(
+            self.boundingRect().center()
+        )
+
+    def set_size(self, size):
+
+        # LOD більше не змінює геометричний розмір вузла.
+        # Zoom робить сам QGraphicsView.
+        return
 
     def paint(
         self,
@@ -55,12 +78,18 @@ class PhotoNode(QGraphicsObject):
         widget=None
     ):
 
+        painter.setRenderHint(
+            QPainter.SmoothPixmapTransform,
+            True
+        )
+
+        # Саме фото, відцентроване всередині вузла.
         painter.drawPixmap(
-            0,
-            0,
+            self.photo_rect.topLeft(),
             self.pixmap
         )
 
+        # Рамка тільки навколо реального фото.
         if self.selected:
 
             pen = QPen(
@@ -71,17 +100,42 @@ class PhotoNode(QGraphicsObject):
             painter.setPen(pen)
 
             painter.drawRect(
-                self.boundingRect()
+                self.photo_rect
+            )
+
+        elif self.neighbor_highlighted:
+
+            pen = QPen(
+                QColor("#777777"),
+                2
+            )
+
+            painter.setPen(pen)
+
+            painter.drawRect(
+                self.photo_rect
             )
 
     def set_selected(self, selected):
 
         self.selected = selected
+
+        self.update()
+
+    def set_neighbor_highlighted(self, highlighted):
+
+        self.neighbor_highlighted = highlighted
+
         self.update()
 
     def mousePressEvent(self, event):
 
         if event.button() == Qt.LeftButton:
+
             self.clicked.emit(self)
+
+            event.accept()
+
+            return
 
         super().mousePressEvent(event)

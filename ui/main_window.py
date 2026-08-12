@@ -123,6 +123,7 @@ class MainWindow(QMainWindow):
 
             self.graph.show_graph(
                 photos,
+                result["graph"],
                 result["positions"]
             )
 
