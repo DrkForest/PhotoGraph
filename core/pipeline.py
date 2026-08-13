@@ -59,6 +59,64 @@ def process_folder(folder):
         photo_list
     )
 
+    print("\n\n=== TEST AFTER SEARCH ===")
+    print(f"Similar entries: {len(similar)}")
+
+    for image, neighbours in similar.items():
+        print(
+            image.name,
+            "->",
+            len(neighbours),
+            "neighbours"
+        )
+
+    print("=== END TEST ===\n\n")
+
+
+    # TEMPORARY GRAPH ANALYSIS
+    import networkx as nx
+
+    graph_debug = nx.Graph()
+
+    for image, neighbours in similar.items():
+
+        graph_debug.add_node(image)
+
+        for neighbour, score in neighbours:
+
+            graph_debug.add_edge(
+                image,
+                neighbour.image,
+                weight=score
+            )
+
+    components = list(
+        nx.connected_components(graph_debug)
+    )
+
+    components.sort(
+        key=len,
+        reverse=True
+    )
+
+    print("\n=== GRAPH ANALYSIS ===")
+    print(f"Nodes: {graph_debug.number_of_nodes()}")
+    print(f"Edges: {graph_debug.number_of_edges()}")
+    print(f"Components: {len(components)}")
+
+    print("Component sizes:")
+
+    for i, component in enumerate(components, 1):
+        print(
+            f"  {i}: {len(component)} photos"
+        )
+
+    isolated = list(
+        nx.isolates(graph_debug)
+    )
+
+    print(f"Isolated: {len(isolated)}")
+
 
     # GRAPH
     graph = build_graph(

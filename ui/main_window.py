@@ -103,6 +103,45 @@ class MainWindow(QMainWindow):
 
                 similar = result["similar"]
 
+                scores = []
+
+                for neighbours in similar.values():
+
+                    for _, score in neighbours:
+                        scores.append(score)
+
+                if scores:
+
+                    scores.sort()
+
+                    print()
+                    print("Similarity statistics:")
+                    print("Count:", len(scores))
+                    print("Min:", round(min(scores), 3))
+                    print("Max:", round(max(scores), 3))
+                    print("Mean:", round(sum(scores) / len(scores), 3))
+
+                    print()
+                    print("=== Similarity Graph ===")
+
+                    for image, neighbours in similar.items():
+
+                        print()
+                        print(image.name)
+
+                        for neighbour, score in neighbours:
+
+                            print(
+                                f"  -> {neighbour.image.name}: "
+                                f"{score:.3f}"
+                            )
+
+                    # print()
+                    # print("Sorted scores:")
+
+                    # for score in scores:
+                    #     print(round(score, 3))
+
                 print()
 
                 first = next(iter(similar))

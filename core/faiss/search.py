@@ -1,5 +1,4 @@
-TOP_K = 5
-MIN_SIMILARITY = 0.55
+MIN_SIMILARITY = 0.70
 
 
 def search_similar(
@@ -9,7 +8,7 @@ def search_similar(
 ):
     distances, indices = index.search(
         vectors,
-        TOP_K + 1
+        len(photos)
     )
 
     nearest = {}
@@ -22,23 +21,26 @@ def search_similar(
             indices[i],
             distances[i]
         ):
+            # саме фото
             if idx == i:
                 continue
 
+            # абсолютний поріг
             if score < MIN_SIMILARITY:
                 continue
 
-            neighbour = photos[idx]
-
             neighbours.append(
                 (
-                    neighbour,
+                    photos[idx],
                     float(score)
                 )
             )
 
         nearest[photo.image] = neighbours
 
+    # Mutual graph:
+    # зв'язок існує тільки якщо A бачить B
+    # і B бачить A.
     result = {}
 
     for photo in photos:
